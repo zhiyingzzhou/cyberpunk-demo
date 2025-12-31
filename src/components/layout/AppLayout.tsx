@@ -3,6 +3,9 @@ import { NavLink, Outlet } from "react-router-dom";
 
 import { Button } from "../ui/Button";
 import { cn } from "../../lib/cn";
+import { RouteTransition } from "../system/RouteTransition";
+import { SystemPanel } from "../system/SystemPanel";
+import { ToastViewport } from "../system/ToastViewport";
 
 function Brand() {
   return (
@@ -83,6 +86,10 @@ export function AppLayout() {
       <main id="content" className="relative">
         <Outlet />
       </main>
+
+      <RouteTransition />
+      <ToastViewport />
+      <SystemPanel />
     </div>
   );
 }

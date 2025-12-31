@@ -16,7 +16,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           className={cn(
-            "cyber-chamfer-sm h-12 w-full border border-border bg-input pl-9 pr-4 text-sm text-accent",
+            "cyber-chamfer-sm cyber-focus-pulse h-12 w-full border border-border bg-input pl-9 pr-4 text-sm text-accent",
             "placeholder:text-mutedForeground placeholder:opacity-80",
             "transition-[box-shadow,border-color] duration-200",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -29,4 +29,3 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   },
 );
 Input.displayName = "Input";
-

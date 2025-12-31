@@ -1,4 +1,7 @@
 import { Card } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { copyText } from "../lib/clipboard";
+import { useToast } from "../state/toast";
 
 type TokenRow = {
   name: string;
@@ -20,14 +23,33 @@ const colorTokens: TokenRow[] = [
 ];
 
 function CodeBlock({ children }: { children: string }) {
+  const { push } = useToast();
   return (
-    <pre className="cyber-chamfer-sm overflow-x-auto border border-border bg-background/60 p-4 text-sm text-foreground/90 shadow-neon-sm">
-      <code className="font-body">{children}</code>
-    </pre>
+    <div className="relative">
+      <pre className="cyber-chamfer-sm overflow-x-auto border border-border bg-background/60 p-4 pr-16 text-sm text-foreground/90 shadow-neon-sm">
+        <code className="font-body">{children}</code>
+      </pre>
+      <Button
+        size="sm"
+        variant="outline"
+        className="absolute right-3 top-3 h-9 px-3 text-xs"
+        onClick={async () => {
+          const ok = await copyText(children);
+          push({
+            title: ok ? "COPIED" : "FAILED",
+            description: ok ? "代码片段已复制" : "无法访问剪贴板",
+            tone: ok ? "ok" : "err",
+          });
+        }}
+      >
+        copy
+      </Button>
+    </div>
   );
 }
 
 export function TokensPage() {
+  const { push } = useToast();
   return (
     <div className="mx-auto max-w-7xl px-6 py-16">
       <div className="flex items-end justify-between gap-6">
@@ -57,6 +79,21 @@ export function TokensPage() {
                       <div className="font-body text-xs text-mutedForeground">{t.value}</div>
                     </div>
                   </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-9 px-3 text-xs"
+                    onClick={async () => {
+                      const ok = await copyText(t.value);
+                      push({
+                        title: ok ? "COPIED" : "FAILED",
+                        description: ok ? `${t.name} = ${t.value}` : "无法访问剪贴板",
+                        tone: ok ? "ok" : "err",
+                      });
+                    }}
+                  >
+                    copy
+                  </Button>
                 </div>
               ))}
             </div>
@@ -140,4 +177,3 @@ export function TokensPage() {
     </div>
   );
 }
-

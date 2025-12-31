@@ -28,24 +28,34 @@ export function Card({
   ...props
 }: CardProps) {
   const base =
-    "relative overflow-hidden border border-border bg-card text-foreground cyber-chamfer";
+    "group relative overflow-hidden border border-border bg-card text-foreground cyber-chamfer";
 
   const interactive = hoverEffect
     ? "transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-0.5 hover:border-accent hover:shadow-neon-sm"
     : "";
+
+  const corners = (
+    <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+      <div className="absolute left-3 top-3 h-3 w-3 border-l border-t border-accent/60" />
+      <div className="absolute right-3 top-3 h-3 w-3 border-r border-t border-accent/60" />
+      <div className="absolute bottom-3 left-3 h-3 w-3 border-b border-l border-accent/60" />
+      <div className="absolute bottom-3 right-3 h-3 w-3 border-b border-r border-accent/60" />
+    </div>
+  );
 
   if (variant === "terminal") {
     return (
       <div
         className={cn(
           base,
-          "bg-background",
+          "bg-background cyber-border-pulse",
           interactive,
           className,
         )}
         {...props}
       >
-        <div className="pointer-events-none absolute inset-0 cyber-noise opacity-10" />
+        <div className="pointer-events-none absolute inset-0 cyber-noise" />
+        {corners}
         <TerminalHeader />
         <div className="relative px-6 pb-6 pt-14">{children}</div>
       </div>
@@ -64,7 +74,7 @@ export function Card({
         )}
         {...props}
       >
-        <div className="pointer-events-none absolute inset-0 cyber-noise opacity-10" />
+        <div className="pointer-events-none absolute inset-0 cyber-noise" />
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-3 top-3 h-3 w-3 border-l border-t border-accent/60" />
           <div className="absolute right-3 top-3 h-3 w-3 border-r border-t border-accent/60" />
@@ -80,12 +90,14 @@ export function Card({
     <div
       className={cn(
         base,
+        "cyber-border-pulse",
         interactive,
         className,
       )}
       {...props}
     >
-      <div className="pointer-events-none absolute inset-0 cyber-noise opacity-10" />
+      <div className="pointer-events-none absolute inset-0 cyber-noise" />
+      {corners}
       <div className="relative p-6">{children}</div>
     </div>
   );

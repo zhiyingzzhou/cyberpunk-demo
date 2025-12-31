@@ -24,12 +24,22 @@
     --font-label: "Share Tech Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
       "Liberation Mono", "Courier New", monospace;
 
-    --box-shadow-neon: 0 0 5px rgba(0, 255, 136, 1), 0 0 10px rgba(0, 255, 136, 0.25);
-    --box-shadow-neon-sm: 0 0 3px rgba(0, 255, 136, 1), 0 0 6px rgba(0, 255, 136, 0.2);
-    --box-shadow-neon-lg: 0 0 10px rgba(0, 255, 136, 1), 0 0 20px rgba(0, 255, 136, 0.4),
-      0 0 40px rgba(0, 255, 136, 0.2);
-    --box-shadow-neon-secondary: 0 0 5px rgba(255, 0, 255, 1), 0 0 20px rgba(255, 0, 255, 0.4);
-    --box-shadow-neon-tertiary: 0 0 5px rgba(0, 212, 255, 1), 0 0 20px rgba(0, 212, 255, 0.4);
+    --box-shadow-neon: 0 0 5px rgba(0, 255, 136, calc(1 * var(--fx-neon-mult))),
+      0 0 10px rgba(0, 255, 136, calc(0.25 * var(--fx-neon-mult)));
+    --box-shadow-neon-sm: 0 0 3px rgba(0, 255, 136, calc(1 * var(--fx-neon-mult))),
+      0 0 6px rgba(0, 255, 136, calc(0.2 * var(--fx-neon-mult)));
+    --box-shadow-neon-lg: 0 0 10px rgba(0, 255, 136, calc(1 * var(--fx-neon-mult))),
+      0 0 20px rgba(0, 255, 136, calc(0.4 * var(--fx-neon-mult))),
+      0 0 40px rgba(0, 255, 136, calc(0.2 * var(--fx-neon-mult)));
+    --box-shadow-neon-secondary: 0 0 5px rgba(255, 0, 255, calc(1 * var(--fx-neon-mult))),
+      0 0 20px rgba(255, 0, 255, calc(0.4 * var(--fx-neon-mult)));
+    --box-shadow-neon-tertiary: 0 0 5px rgba(0, 212, 255, calc(1 * var(--fx-neon-mult))),
+      0 0 20px rgba(0, 212, 255, calc(0.4 * var(--fx-neon-mult)));
+
+    --fx-neon-mult: 1;
+    --fx-noise-mult: 1;
+    --fx-scanlines-opacity: 0.22;
+    --fx-sweep-opacity: 0.12;
   }
 
   html {
@@ -89,6 +99,7 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
     background-size: 200px 200px;
     background-repeat: repeat;
+    opacity: calc(0.1 * var(--fx-noise-mult));
   }
 
   .cyber-glitch {
@@ -144,7 +155,7 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: 50;
-  opacity: 0.22;
+  opacity: var(--fx-scanlines-opacity);
   background: repeating-linear-gradient(
     0deg,
     transparent,
@@ -160,7 +171,7 @@ body::after {
   inset: -20vh 0 0 0;
   pointer-events: none;
   z-index: 49;
-  opacity: 0.12;
+  opacity: var(--fx-sweep-opacity);
   background: linear-gradient(
       to bottom,
       transparent,
@@ -213,6 +224,89 @@ body::after {
   }
 }
 
+html.scanlines-off {
+  --fx-scanlines-opacity: 0;
+  --fx-sweep-opacity: 0;
+}
+
+html.glitch-off .cyber-glitch::before,
+html.glitch-off .cyber-glitch::after {
+  display: none;
+}
+
+html.glitch-off .cyber-glitch {
+  text-shadow: 0 0 18px rgb(var(--c-accent) / 0.25);
+}
+
+html.transitions-off .cyber-route-wipe {
+  display: none;
+}
+
+@keyframes routeWipe {
+  0% {
+    transform: translateY(-120%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateY(120vh);
+    opacity: 0;
+  }
+}
+
+.cyber-route-wipe {
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--c-accent) / 0.25),
+      transparent
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.25) 2px,
+      rgba(0, 0, 0, 0.25) 4px
+    );
+  mix-blend-mode: screen;
+  animation: routeWipe 460ms steps(4, end) 1;
+}
+
+@keyframes borderPulse {
+  0%,
+  100% {
+    border-color: rgb(var(--c-accent) / 0.65);
+  }
+  33% {
+    border-color: rgb(var(--c-accent-tertiary) / 0.65);
+  }
+  66% {
+    border-color: rgb(var(--c-accent-secondary) / 0.65);
+  }
+}
+
+.cyber-border-pulse:hover {
+  animation: borderPulse 900ms steps(4, end) infinite;
+}
+
+@keyframes neonPulse {
+  0% {
+    filter: drop-shadow(0 0 0 rgba(0, 255, 136, 0));
+  }
+  60% {
+    filter: drop-shadow(0 0 14px rgba(0, 255, 136, 0.5));
+  }
+  100% {
+    filter: drop-shadow(0 0 0 rgba(0, 255, 136, 0));
+  }
+}
+
+.cyber-focus-pulse:focus-visible {
+  animation: neonPulse 650ms steps(4, end) 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   body::after {
     animation: none;
@@ -222,5 +316,16 @@ body::after {
   .cyber-glitch::after {
     animation: none;
   }
-}
 
+  .cyber-route-wipe {
+    animation: none;
+  }
+
+  .cyber-border-pulse:hover {
+    animation: none;
+  }
+
+  .cyber-focus-pulse:focus-visible {
+    animation: none;
+  }
+}

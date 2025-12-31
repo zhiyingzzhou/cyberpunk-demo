@@ -1,8 +1,11 @@
 import { NavLink } from "react-router-dom";
+import { useMemo, useState } from "react";
 
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
+import { copyText } from "../lib/clipboard";
+import { useToast } from "../state/toast";
 
 function SectionTitle({
   label,
@@ -29,6 +32,25 @@ function SectionTitle({
 }
 
 export function ComponentsPage() {
+  const { push } = useToast();
+  const [buttonVariant, setButtonVariant] = useState<
+    "default" | "secondary" | "outline" | "ghost" | "glitch"
+  >("default");
+  const [buttonSize, setButtonSize] = useState<"sm" | "md" | "lg">("md");
+  const [disabled, setDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const snippet = useMemo(() => {
+    const props = [
+      `variant="${buttonVariant}"`,
+      `size="${buttonSize}"`,
+      disabled ? "disabled" : null,
+    ]
+      .filter(Boolean)
+      .join(" ");
+    return `<Button ${props}>${loading ? "loading…" : "press"}</Button>`;
+  }, [buttonVariant, buttonSize, disabled, loading]);
+
   return (
     <div className="mx-auto max-w-7xl px-6 py-16">
       <SectionTitle
@@ -77,14 +99,144 @@ export function ComponentsPage() {
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="-skew-y-1">
-          <div className="text-tech text-xs text-accentSecondary">inputs</div>
-          <div className="mt-3 font-heading text-2xl uppercase tracking-wide">Terminal Input</div>
-          <div className="mt-5 space-y-4">
-            <Input placeholder="输入命令，例如: trace --rgb" aria-label="命令输入" />
-            <Input prefix="$" placeholder="输入用户名，例如: runner_07" aria-label="用户名输入" />
+          <div className="text-tech text-xs text-accent">playground</div>
+          <div className="mt-3 font-heading text-2xl uppercase tracking-wide">Button Lab</div>
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="space-y-2">
+              <div className="text-tech text-xs text-mutedForeground">variant</div>
+              <select
+                className="cyber-chamfer-sm h-11 w-full border border-border bg-background/60 px-3 text-tech text-sm text-foreground/90 shadow-neon-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                value={buttonVariant}
+                onChange={(e) => setButtonVariant(e.currentTarget.value as typeof buttonVariant)}
+              >
+                <option value="default">default</option>
+                <option value="secondary">secondary</option>
+                <option value="outline">outline</option>
+                <option value="ghost">ghost</option>
+                <option value="glitch">glitch</option>
+              </select>
+            </label>
+
+            <label className="space-y-2">
+              <div className="text-tech text-xs text-mutedForeground">size</div>
+              <select
+                className="cyber-chamfer-sm h-11 w-full border border-border bg-background/60 px-3 text-tech text-sm text-foreground/90 shadow-neon-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                value={buttonSize}
+                onChange={(e) => setButtonSize(e.currentTarget.value as typeof buttonSize)}
+              >
+                <option value="sm">sm</option>
+                <option value="md">md</option>
+                <option value="lg">lg</option>
+              </select>
+            </label>
+
+            <label className="flex items-center justify-between gap-4 cyber-chamfer-sm border border-border bg-background/40 px-4 py-3">
+              <div>
+                <div className="text-tech text-xs text-mutedForeground">disabled</div>
+                <div className="mt-1 text-xs text-foreground/80">禁用态仍保留结构</div>
+              </div>
+              <input
+                type="checkbox"
+                checked={disabled}
+                onChange={(e) => setDisabled(e.currentTarget.checked)}
+                className="h-5 w-5 accent-[rgb(var(--c-accent))]"
+              />
+            </label>
+
+            <label className="flex items-center justify-between gap-4 cyber-chamfer-sm border border-border bg-background/40 px-4 py-3">
+              <div>
+                <div className="text-tech text-xs text-mutedForeground">loading</div>
+                <div className="mt-1 text-xs text-foreground/80">模拟异步</div>
+              </div>
+              <input
+                type="checkbox"
+                checked={loading}
+                onChange={(e) => setLoading(e.currentTarget.checked)}
+                className="h-5 w-5 accent-[rgb(var(--c-accent))]"
+              />
+            </label>
           </div>
-          <div className="mt-6 text-sm text-mutedForeground">
-            输入框默认 text-accent、placeholder 低对比；focus 时边框变 accent 并出现 neon glow。
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Button
+              variant={buttonVariant}
+              size={buttonSize}
+              disabled={disabled || loading}
+              onClick={() => {
+                if (!loading) return;
+                push({ title: "EXEC", description: "模拟执行中…", tone: "warn" });
+                window.setTimeout(() => push({ title: "DONE", description: "已完成", tone: "ok" }), 650);
+              }}
+            >
+              {loading ? (
+                <>
+                  <span className="inline-block h-4 w-4 animate-spin border-2 border-background/30 border-t-background" />
+                  loading
+                </>
+              ) : (
+                "press"
+              )}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 px-4"
+              onClick={async () => {
+                const ok = await copyText(snippet);
+                push({
+                  title: ok ? "COPIED" : "FAILED",
+                  description: ok ? "用法片段已复制" : "无法访问剪贴板",
+                  tone: ok ? "ok" : "err",
+                });
+              }}
+            >
+              copy snippet
+            </Button>
+          </div>
+
+          <pre className="mt-5 cyber-chamfer-sm overflow-x-auto border border-border bg-background/60 p-4 text-sm text-foreground/90 shadow-neon-sm">
+            <code className="font-body">{snippet}</code>
+          </pre>
+        </Card>
+
+        <Card variant="terminal" className="-skew-y-1">
+          <div className="text-tech text-xs text-accentSecondary">forms</div>
+          <div className="mt-3 font-heading text-2xl uppercase tracking-wide">Input Demo</div>
+          <div className="mt-5 space-y-4">
+            <Input placeholder="例如: breach --silent" aria-label="命令输入" />
+            <Input prefix="$" placeholder="例如: runner_07" aria-label="用户输入" />
+            <div className="text-xs text-mutedForeground">
+              tip: 试试键盘 Tab 到输入框/按钮，focus 会触发一次 neon pulse。
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card className="-skew-y-1">
+          <div className="text-tech text-xs text-accentTertiary">micro fx</div>
+          <div className="mt-3 font-heading text-2xl uppercase tracking-wide">Interactions</div>
+          <div className="mt-5 space-y-3 text-sm text-foreground/85">
+            <div className="cyber-chamfer-sm border border-border bg-background/50 p-4">
+              <div className="text-tech text-xs text-mutedForeground">hover</div>
+              <div className="mt-2 font-heading text-lg uppercase tracking-wide">corners</div>
+              <div className="mt-2 text-sm text-mutedForeground">卡片/按钮 hover 会出现角标。</div>
+            </div>
+            <div className="cyber-chamfer-sm border border-border bg-background/50 p-4">
+              <div className="text-tech text-xs text-mutedForeground">border</div>
+              <div className="mt-2 font-heading text-lg uppercase tracking-wide">pulse</div>
+              <div className="mt-2 text-sm text-mutedForeground">
+                hover 时边框在 accent / cyan / magenta 间跳变。
+              </div>
+            </div>
+            <div className="cyber-chamfer-sm border border-border bg-background/50 p-4">
+              <div className="text-tech text-xs text-mutedForeground">focus</div>
+              <div className="mt-2 font-heading text-lg uppercase tracking-wide">neon pulse</div>
+              <div className="mt-2 text-sm text-mutedForeground">
+                focus-visible 触发一次脉冲（键盘用户可见）。
+              </div>
+            </div>
           </div>
         </Card>
 
@@ -108,4 +260,3 @@ export function ComponentsPage() {
     </div>
   );
 }
-

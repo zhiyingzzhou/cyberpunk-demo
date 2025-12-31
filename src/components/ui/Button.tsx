@@ -29,24 +29,32 @@ const sizeClasses: Record<ButtonSize, string> = {
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "md", type = "button", ...props }, ref) => {
+  ({ className, variant = "default", size = "md", type = "button", children, ...props }, ref) => {
     return (
       <button
         ref={ref}
         type={type}
         className={cn(
-          "cyber-chamfer-sm inline-flex min-w-[10ch] items-center justify-center gap-2 whitespace-nowrap text-tech",
+          "cyber-chamfer-sm cyber-focus-pulse group relative inline-flex min-w-[10ch] items-center justify-center gap-2 whitespace-nowrap text-tech",
           "transition-[box-shadow,transform,filter,background-color,color,border-color] duration-150",
           "active:translate-y-px disabled:pointer-events-none disabled:opacity-50",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          variant === "glitch" ? "" : "cyber-border-pulse",
           sizeClasses[size],
           variantClasses[variant],
           className,
         )}
         {...props}
-      />
+      >
+        <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+          <span className="absolute left-2 top-2 h-2.5 w-2.5 border-l border-t border-accent/70" />
+          <span className="absolute right-2 top-2 h-2.5 w-2.5 border-r border-t border-accent/70" />
+          <span className="absolute bottom-2 left-2 h-2.5 w-2.5 border-b border-l border-accent/70" />
+          <span className="absolute bottom-2 right-2 h-2.5 w-2.5 border-b border-r border-accent/70" />
+        </span>
+        <span className="relative">{children}</span>
+      </button>
     );
   },
 );
 Button.displayName = "Button";
-
