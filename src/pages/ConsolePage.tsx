@@ -333,9 +333,10 @@ export function ConsolePage() {
                     <input
                       type="checkbox"
                       checked={enabled[lv]}
-                      onChange={(e) =>
-                        setEnabled((prev) => ({ ...prev, [lv]: e.currentTarget.checked }))
-                      }
+                      onChange={(e) => {
+                        const checked = e.currentTarget.checked;
+                        setEnabled((prev) => ({ ...prev, [lv]: checked }));
+                      }}
                       className="h-4 w-4 accent-[rgb(var(--c-accent))]"
                     />
                     <span className={`text-tech text-xs ${levelClass(lv)}`}>{lv}</span>
